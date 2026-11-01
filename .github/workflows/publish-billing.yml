@@ -18,13 +18,22 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Clear blocked legacy publication
+      - name: Clear blocked publication and wait for cancellation
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh api --method POST repos/royalflightclub/rfcbilling/pages/deployments/f125a028c93b472d5e2c55e3436c547bfc00e439/cancel || true
+          for attempt in $(seq 1 12); do
+            state=$(gh api repos/royalflightclub/rfcbilling/pages/deployments/f125a028c93b472d5e2c55e3436c547bfc00e439/status --jq .status || echo unknown)
+            echo "Legacy deployment status: $state"
+            case "$state" in deployment_in_progress|deployment_queued|queued|in_progress) sleep 5 ;; *) break ;; esac
+          done
+          sleep 10
       - uses: actions/upload-pages-artifact@v3
         with:
+          name: billing-${{ github.run_id }}-${{ github.run_attempt }}
           path: .
       - uses: actions/deploy-pages@v4
         id: deployment
+        with:
+          artifact_name: billing-${{ github.run_id }}-${{ github.run_attempt }}
