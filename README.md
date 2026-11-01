@@ -1,4 +1,5 @@
 # Royal Flight Club Department Billing
+Release: credits-only billing and optional color printing (1 November 2026).
 App Created By: Micha Christine Dotimas
 
 Upload the exported ledger, enter department account number and month, review debit/credit totals, complete billing details and issue a numbered service bill. Current month only is the default; opening balance is displayed separately. Print in A4 portrait with browser headers/footers off.
